@@ -1,0 +1,10 @@
+ultralytics>=8.3.131
+opencv-python>=4.11.0
+numpy>=1.26.4
+paddleocr>=2.8.0
+paddlepaddle-gpu>=2.5.0
+pandas>=2.2.3
+scipy>=1.15.3
+filterpy>=1.4.5
+torch>=2.5.1
+torchvision>=0.20.1 
