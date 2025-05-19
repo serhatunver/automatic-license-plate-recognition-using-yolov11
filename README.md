@@ -2,6 +2,8 @@
 
 This project implements an automatic license plate recognition system using computer vision and deep learning techniques. The system can detect vehicles, track them, and read their license plates from video input. It is specifically designed for Turkish license plates but can be adapted for other formats.
 
+![output](https://github.com/user-attachments/assets/c56c0d8c-4829-42fa-a109-b90d245192ee)
+
 This project is based on and modified from:
 
 - [automatic-number-plate-recognition-python-yolov8](https://github.com/computervisioneng/automatic-number-plate-recognition-python-yolov8)
