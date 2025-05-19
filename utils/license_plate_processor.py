@@ -185,6 +185,7 @@ class LicensePlateProcessor:
         full_text_paddle_formatted = self.format_license_paddle(full_text_raw)
         corrected_text = self.try_correct_plate_smart(full_text_paddle_formatted)
         avg_score = sum(scores) / len(scores) if scores else 0.0
+        print(f"PaddleOCR Output: '{full_text_raw}', Formatted: '{full_text_paddle_formatted}', Smart Corrected: '{corrected_text}', Score: {avg_score}")
 
         if self.license_complies_format_flexible(corrected_text):
             return corrected_text, avg_score

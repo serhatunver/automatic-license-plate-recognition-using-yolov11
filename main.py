@@ -7,6 +7,19 @@ from utils.vehicle_tracker import VehicleTracker
 from utils.data_writer import DataWriter
 from utils.data_interpolator import DataInterpolator
 from utils.visualizer import Visualizer
+from fastapi import FastAPI, UploadFile, File
+from fastapi.responses import JSONResponse
+import uvicorn
+import tempfile
+import os
+from typing import Dict, Any
+import argparse
+
+app = FastAPI(
+    title="License Plate Recognition API",
+    description="API for detecting and recognizing license plates in videos",
+    version="1.0.0"
+)
 
 class LicensePlateRecognition:
     def __init__(self, video_path, coco_model_path, license_plate_model_path):
@@ -105,14 +118,76 @@ class LicensePlateRecognition:
         visualizer = Visualizer(self.video_path)
         visualizer.run()
 
-def main():
-    # Initialize and run the license plate recognition system
+@app.post("/process-video/")
+async def process_video(file: UploadFile = File(...)) -> Dict[str, Any]:
+    """
+    Process a video file for license plate recognition
+    
+    Args:
+        file: The video file to process
+        
+    Returns:
+        Dict containing processing results
+    """
+    try:
+        # Create a temporary file to store the uploaded video
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as temp_file:
+            content = await file.read()
+            temp_file.write(content)
+            temp_path = temp_file.name
+
+        # Initialize and run the license plate recognition system
+        lpr = LicensePlateRecognition(
+            video_path=temp_path,
+            coco_model_path='yolo11n.pt',
+            license_plate_model_path='./models/custom_license_plate_detector.pt'
+        )
+        lpr.run()
+
+        # Clean up the temporary file
+        os.unlink(temp_path)
+
+        return {
+            "status": "success",
+            "message": "Video processed successfully",
+            "results_file": "test_interpolated.csv"
+        }
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"status": "error", "message": str(e)}
+        )
+
+def process_video_file(video_path: str):
+    """
+    Process a video file from command line
+    
+    Args:
+        video_path: Path to the video file
+    """
     lpr = LicensePlateRecognition(
-        video_path='sample.mp4',
+        video_path=video_path,
         coco_model_path='yolo11n.pt',
-        license_plate_model_path='./models/license_plate_detector.pt'
+        license_plate_model_path='./models/custom_license_plate_detector.pt'
     )
     lpr.run()
+
+def main():
+    parser = argparse.ArgumentParser(description='License Plate Recognition System')
+    parser.add_argument('--mode', choices=['api', 'cli'], default='api',
+                      help='Run mode: api for FastAPI server, cli for command line processing')
+    parser.add_argument('--video', type=str, help='Path to video file (required for cli mode)')
+    parser.add_argument('--host', type=str, default='127.0.0.1', help='Host for API server')
+    parser.add_argument('--port', type=int, default=8000, help='Port for API server')
+    
+    args = parser.parse_args()
+    
+    if args.mode == 'api':
+        uvicorn.run(app, host=args.host, port=args.port)
+    elif args.mode == 'cli':
+        if not args.video:
+            parser.error("--video argument is required for cli mode")
+        process_video_file(args.video)
 
 if __name__ == "__main__":
     main()
