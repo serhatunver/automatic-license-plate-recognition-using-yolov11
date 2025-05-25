@@ -140,7 +140,7 @@ async def process_video(file: UploadFile = File(...)) -> Dict[str, Any]:
         lpr = LicensePlateRecognition(
             video_path=temp_path,
             coco_model_path='yolo11n.pt',
-            license_plate_model_path='./models/custom_license_plate_detector.pt'
+            license_plate_model_path='./models/license_plate_detector.pt'
         )
         lpr.run()
 
@@ -168,7 +168,7 @@ def process_video_file(video_path: str):
     lpr = LicensePlateRecognition(
         video_path=video_path,
         coco_model_path='yolo11n.pt',
-        license_plate_model_path='./models/custom_license_plate_detector.pt'
+        license_plate_model_path='./models/license_plate_detector.pt'
     )
     lpr.run()
 
